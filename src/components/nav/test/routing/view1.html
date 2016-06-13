@@ -1,8 +1,5 @@
 
 <ion-navbar *navbar>
-  <button menuToggle>
-    <ion-icon name="menu"></ion-icon>
-  </button>
   <ion-title>First View</ion-title>
 </ion-navbar>
 
@@ -17,9 +14,15 @@
     ViewController Id: {{viewCtrl.id}}
   </h4>
   <p>
-    <a href="#/2">Second View via href</a>
+    <a href="#/view2">Second View via a[href]</a>
   </p>
   <p>
-    <a href="#/3/151">Third View via href, 151 as id param</a>
+    <a href="#/view3/151">Third View via a[href], 314 as id param</a>
+  </p>
+  <p>
+    <a [navPush]="['/view2']">Second View via a[navPush]</a>
+  </p>
+  <p>
+    <a [navPush]="['/view3', {id: 129}]">Thrid View via a[navPush], 129 as id param</a>
   </p>
 </ion-content>

@@ -1,6 +1,7 @@
 import {bootstrap} from '@angular/platform-browser-dynamic';
 import {enableProdMode, provide, PLATFORM_DIRECTIVES, ComponentRef, NgZone} from '@angular/core';
 import {HTTP_PROVIDERS} from '@angular/http';
+import {RouterOutletMap} from '@angular/router';
 
 import {App} from '../components/app/app';
 import {ClickBlock} from '../util/click-block';
@@ -13,7 +14,6 @@ import {isPresent} from '../util/util';
 import {Keyboard} from '../util/keyboard';
 import {MenuController} from '../components/menu/menu-controller';
 import {nativeTimeout, closest} from '../util/dom';
-import {NavRegistry} from '../components/nav/nav-registry';
 import {Platform} from '../platform/platform';
 import {ScrollView} from '../util/scroll-view';
 import {TapClick} from '../components/tap-click/tap-click';
@@ -110,7 +110,6 @@ export function ionicProviders(customProviders?: Array<any>, config?: any): any[
   let clickBlock = new ClickBlock();
   let events = new Events();
   let featureDetect = new FeatureDetect();
-  let navRegistry = new NavRegistry();
 
   setupDom(window, document, config, platform, clickBlock, featureDetect);
   bindEvents(window, document, platform, events);
@@ -124,12 +123,12 @@ export function ionicProviders(customProviders?: Array<any>, config?: any): any[
     Form,
     Keyboard,
     MenuController,
-    provide(NavRegistry, {useValue: navRegistry}),
     provide(Platform, {useValue: platform}),
     Translate,
     TapClick,
     provide(PLATFORM_DIRECTIVES, {useValue: [directives], multi: true}),
     HTTP_PROVIDERS,
+    RouterOutletMap,
     customProviders
   ];
 }

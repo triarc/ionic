@@ -1,10 +1,15 @@
-import {Component} from '@angular/core';
-import {Routes} from '@angular/router';
+import {Component, provide} from '@angular/core';
 import {Location} from '@angular/common';
+import {LocationStrategy, HashLocationStrategy} from '@angular/common';
+import {provideRouter} from '@angular/router';
+import * as router from '@angular/router';
 import {ionicBootstrap, NavParams, ViewController} from '../../../../../src';
 
 
-@Component({templateUrl: 'view1.html'})
+@Component({
+  selector: 'ion-page',
+  templateUrl: 'view1.html'
+})
 class View1Cmp {
   path: string;
   windowHash: string;
@@ -20,7 +25,10 @@ class View1Cmp {
 }
 
 
-@Component({templateUrl: 'view2.html'})
+@Component({
+  selector: 'ion-page',
+  templateUrl: 'view2.html'
+})
 class View2Cmp {
   path: string;
   windowHash: string;
@@ -36,7 +44,10 @@ class View2Cmp {
 }
 
 
-@Component({templateUrl: 'view3.html'})
+@Component({
+  selector: 'ion-page',
+  templateUrl: 'view3.html'
+})
 class View3Cmp {
   id: string;
   path: string;
@@ -54,14 +65,27 @@ class View3Cmp {
 }
 
 
-@Component({})
-@Routes([
-  { path: '/', component: View1Cmp },
-  { path: '/2', component: View2Cmp },
-  { path: '/3/:id', component: View3Cmp }
-])
+@Component({
+  template: '<ion-nav></ion-nav>'
+})
 class E2EApp {
-  constructor(private location: Location) {}
+  constructor() {
+
+  }
 }
 
-ionicBootstrap(E2EApp);
+
+const routes = [
+  { path: '/',  component: View1Cmp, index: true },
+  { path: 'view2', component: View2Cmp },
+  { path: 'view3/:id', component: View3Cmp }
+];
+
+
+export const APP_ROUTER_PROVIDERS: any[] = [
+  provideRouter(routes),
+  provide(LocationStrategy, {useClass: HashLocationStrategy}),
+];
+
+
+ionicBootstrap(E2EApp, APP_ROUTER_PROVIDERS);

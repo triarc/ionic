@@ -1,6 +1,8 @@
-import {Directive, Optional, Input} from '@angular/core';
+import {Directive, ElementRef, Renderer, Optional, Input, HostListener, HostBinding, OnChanges} from '@angular/core';
+import {ActivatedRoute, Router} from '@angular/router';
+
 import {NavController} from './nav-controller';
-import {NavRegistry} from './nav-registry';
+
 
 /**
  * @name NavPush
@@ -12,17 +14,21 @@ import {NavRegistry} from './nav-registry';
  * ```html
  * <button [navPush]="pushPage"></button>
  * ```
- * To specify parameters you can use array syntax or the `nav-params` property:
+ *
+ * To specify parameters you can use array syntax or the `navParams` property:
+ *
  * ```html
- * <button [navPush]="pushPage" [navParams]="params"></button>
+ * <button [navPush]="pushPage" [navParams]="params">Go</button>
  * ```
+ *
  * Where `pushPage` and `params` are specified in your component, and `pushPage`
  * contains a reference to a [@Page component](../../../config/Page/):
  *
  * ```ts
- * import {LoginPage} from 'login';
+ * import {LoginPage} from './login';
+ *
  * @Component({
- *   template: `<button [navPush]="pushPage" [navParams]="params"></button>`
+ *   template: `<button [navPush]="pushPage" [navParams]="params">Go</button>`
  * })
  * class MyPage {
  *   constructor(){
@@ -32,110 +38,89 @@ import {NavRegistry} from './nav-registry';
  * }
  * ```
  *
- * ### Alternate syntax
- * You can also use syntax similar to Angular2's router, passing an array to
- * NavPush:
- * ```html
- * <button [navPush]="[pushPage, params]"></button>
- * ```
  * @demo /docs/v2/demos/navigation/
  * @see {@link /docs/v2/components#navigation Navigation Component Docs}
  * @see {@link ../NavPop NavPop API Docs}
+ *
  */
 @Directive({
-  selector: '[navPush]',
-  host: {
-    '(click)': 'onClick()',
-    'role': 'link'
-  }
+  selector: '[navPush]'
 })
-export class NavPush {
+export class NavPush implements OnChanges {
+  private commands: any[] = [];
+
+  // the url displayed on the anchor element.
+  @HostBinding() href: string;
 
   /**
-  * @input {Page} the page you want to push
-  */
-  @Input() navPush: any;
+   * @input {Page} The Page to push onto the Nav.
+   */
+  @Input()
+  set navPush(data: any[]|string) {
+    if (Array.isArray(data)) {
+      this.commands = <any>data;
+    } else {
+      this.commands = [data];
+    }
+  }
 
   /**
-  * @input {any} Any parameters you want to pass along
-  */
-  @Input() navParams: any;
+   * @input {any} Parameters to pass to the page.
+   */
+  @Input() navParams: {[k: string]: any};
+
+  /**
+   * @private
+   */
+  @Input() fragment: string;
+
+  /**
+   * @private
+   */
+  @Input() target: string;
+
 
   constructor(
     @Optional() private _nav: NavController,
-    private registry: NavRegistry
-   ) {
+    private router: Router,
+    private route: ActivatedRoute,
+    elementRef: ElementRef,
+    renderer: Renderer
+  ) {
     if (!_nav) {
-      console.error('nav-push must be within a NavController');
+      console.error('navPush must be within a NavController');
+    }
+
+    if (elementRef.nativeElement.tagName !== 'A') {
+      renderer.setElementAttribute(elementRef.nativeElement, 'role', 'link');
     }
   }
 
-  /**
-   * @private
-   */
-  onClick() {
-    let destination: any, params: any;
+  @HostListener('click')
+  onClick(): boolean {
+    // If no target, or if target is _self, prevent default browser behavior
+    if (this._nav && (!(typeof this.target === 'string') || this.target == '_self')) {
 
-    if (this.navPush instanceof Array) {
-      if (this.navPush.length > 2) {
-        throw 'Too many [navPush] arguments, expects [View, { params }]';
-      }
-      destination = this.navPush[0];
-      params = this.navPush[1] || this.navParams;
+    // const tree = this.router.createUrlTree(
+    //     this.commands,
+    //     {relativeTo: this.route, queryParams: this.navParams, fragment: this.fragment});
 
-    } else {
-      destination = this.navPush;
-      params = this.navParams;
+    //   this._nav.push(this.navPush, this.navParams);
+
+      return false;
     }
 
-    if (typeof destination === 'string') {
-      destination = this.registry.get(destination);
+    return true;
+  }
+
+  ngOnChanges(changes: {}): any { this.updateTargetUrlAndHref(); }
+
+  private updateTargetUrlAndHref(): void {
+    const tree = this.router.createUrlTree(
+        this.commands,
+        {relativeTo: this.route, queryParams: this.navParams, fragment: this.fragment});
+    if (tree) {
+      this.href = this.router.serializeUrl(tree) || '#';
     }
-
-    this._nav && this._nav.push(destination, params);
-  }
-}
-
-
-/**
- * @name NavPop
- * @description
- * Directive for declaratively pop the current page off from the navigation stack.
- *
- * @usage
- * ```html
- * <ion-content>
- *  <div block button nav-pop>go back</div>
- * </ion-content>
- * ```
- * This will go back one page in the navigation stack
- *
- * Similar to {@link /docs/v2/api/components/nav/NavPush/ `NavPush` }
- * @demo /docs/v2/demos/navigation/
- * @see {@link /docs/v2/components#navigation Navigation Component Docs}
- * @see {@link ../NavPush NavPush API Docs}
- */
-@Directive({
-  selector: '[nav-pop]',
-  host: {
-    '(click)': 'onClick()',
-    'role': 'link'
-  }
-})
-export class NavPop {
-  /**
-   * TODO
-   * @param {NavController} nav  TODO
-   */
-  constructor(@Optional() private _nav: NavController) {
-    if (!_nav) {
-      console.error('nav-pop must be within a NavController');
-    }
-  }
-  /**
-   * @private
-   */
-  onClick() {
-    this._nav && this._nav.pop();
   }
 }

@@ -192,7 +192,7 @@ export class ScrollView {
   private _setMax() {
     if (!this._max) {
       // ******** DOM READ ****************
-      this._max = (this._el.offsetHeight - this._el.parentElement.offsetHeight + this._el.parentElement.offsetTop);
+      this._max = (this._el.offsetHeight - this._el.parentElement.offsetHeight + this._el.parentElement.offsetTop + this._el.offsetTop + 44);
     }
   }
 

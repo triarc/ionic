@@ -28,6 +28,8 @@ export class ScrollView {
     this._top = top;
 
     if (this._js) {
+      // ******** DOM READ THEN DOM WRITE ****************
+      this._cb(this._top);
       this._el.style[CSS.transform] = `translate3d(0px,${top * -1}px,0px)`;
 
     } else {
@@ -177,9 +179,6 @@ export class ScrollView {
 
       this._pos.push(y, Date.now());
 
-      // ******** DOM READ THEN DOM WRITE ****************
-      this._cb(this._top);
-
       // ******** DOM WRITE ****************
       this.setTop(this._top);
     }
@@ -254,9 +253,6 @@ export class ScrollView {
       // update top with updated velocity
       // clamp top within scroll limits
       self._top = Math.min(Math.max(self._top + self._velocity, 0), self._max);
-
-      // ******** DOM READ THEN DOM WRITE ****************
-      self._cb(self._top);
 
       // ******** DOM WRITE ****************
       self.setTop(self._top);

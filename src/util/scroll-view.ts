@@ -9,7 +9,7 @@ export class ScrollView {
   private _velocity: number;
   private _max: number;
   private _rafId: number;
-  private _cb: Function;
+  private _cb: Function[] = [];
   isPlaying: boolean;
 
   constructor(ele: HTMLElement) {
@@ -29,7 +29,9 @@ export class ScrollView {
 
     if (this._js) {
       // ******** DOM READ THEN DOM WRITE ****************
-      this._cb(this._top);
+      for (let cb: Function of this._cb){
+         cb(this._top);
+      }
       this._el.style[CSS.transform] = `translate3d(0px,${top * -1}px,0px)`;
 
     } else {
@@ -130,10 +132,13 @@ export class ScrollView {
    * method may be removed in the future.
    */
   jsScroll(onScrollCallback: Function): Function {
-    this._js = true;
-    this._cb = onScrollCallback;
+    this._cb.push(onScrollCallback);
     this._pos = [];
-
+    if(this._js){
+      return;
+    }
+    this._js = true;
+    
     if (this._el) {
       this._el.addEventListener('touchstart', this._start.bind(this));
       this._el.addEventListener('touchmove', this._move.bind(this));
@@ -147,6 +152,7 @@ export class ScrollView {
         this._el.removeEventListener('touchmove', this._move.bind(this));
         this._el.removeEventListener('touchend', this._end.bind(this));
         this._el.parentElement.classList.remove('js-scroll');
+        this._js = false;
       }
     };
   }

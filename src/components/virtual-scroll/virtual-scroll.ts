@@ -541,14 +541,14 @@ export class VirtualScroll implements DoCheck, AfterContentInit, OnDestroy {
     this._imgs.forEach(img => {
       img.enable(true);
     });
-
+    this._data.scrollDiff = -1;
     // ******** DOM READ ****************
     updateDimensions(this._nodes, this._cells, this._data, false);
 
     adjustRendered(this._cells, this._data);
 
     populateNodeData(this._data.topCell, this._data.bottomCell,
-                              this._data.viewWidth, this._data.scrollDiff > 0,
+                              this._data.viewWidth, false,
                               this._cells, this._records, this._nodes,
                               this._itmTmp.viewContainer,
                               this._itmTmp.templateRef,

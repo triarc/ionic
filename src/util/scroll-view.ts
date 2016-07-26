@@ -52,7 +52,7 @@ export class ScrollView {
     x = x || 0;
     y = y || 0;
 
-    let fromY = self._el.scrollTop;
+    let fromY = self.getTop();
     let fromX = self._el.scrollLeft;
 
     let xDistance = Math.abs(x - fromX);
